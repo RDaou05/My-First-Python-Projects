@@ -1,20 +1,10 @@
 import os
 import time
-import subprocess
+from subprocess import call
 import getpass
-
-
 print("Please wait a few seconds while the nessecary modules are being installed...")
-try:
-    import pytube
-except ModuleNotFoundError:
-    alr = subprocess.check_output(
-        "pip install pytube", shell=True, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-    import pytube
-    time.sleep(5)
-except:
-    pass
-
+call("pip install pytube", shell=True)
+import pytube
 
 def initalize_and_download_video():
     global video
