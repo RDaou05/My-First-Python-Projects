@@ -22,7 +22,7 @@ path_of_db = f'{pathlib.Path.home()}\Password Manager\Vault.db'
 # Enter your email
 #email_for_code = " "
 # Enter your password
-#password_for_code = "Testing95"
+#password_for_code = " "
 
 
 def check_dirs():
