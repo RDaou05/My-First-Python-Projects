@@ -867,22 +867,6 @@ def ask_to_run_again():
         else:
             print('\n[-] That is not a vaild response. Please try again.')
 
-
-def testing():
-    username = getpass.getuser()
-    path_of_db = fr'C:\Users\{username}\Password Manager\vault.db'
-    path_of_pass_folder = fr'C:\Users\{username}\Password Manager'
-    if os.path.isdir(path_of_pass_folder) == False:
-        os.mkdir(path_of_pass_folder)
-    conn = sqlite3.connect(path_of_db)
-    c = conn.cursor()
-
-    c.execute('select rowid from passwords')
-    print(c.fetchall())
-    c.close()
-    conn.close()
-
-
 def start():
     print('''             
             r#@@@@@@@@@#r           
