@@ -847,7 +847,7 @@ def options():
             csv_file.close()
         for info_tuple in all_csv_lines:
             encrypt_info(info_tuple[0], info_tuple[1], info_tuple[2])
-    elif feature_to_run.strip() == '5' or feature_to_run.strip().lower() == 'five':
+    elif feature_to_run.strip() == '6' or feature_to_run.strip().lower() == 'six':
         password_generator()
     else:
         print('\n[-] That is not a vaild response. Please try again.\n')
