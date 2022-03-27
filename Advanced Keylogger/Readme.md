@@ -29,5 +29,5 @@ If you want to convert this program to an exe, just run the following commands i
 
 If you want to add an icon, run this command instead of step 2: `pyinstaller --onefile --icon=(path_of_icon)--noconsole .\main.pyw`
 
-WARNING!!
+NOTE:
 If you want to add an icon, the icon file must be in a .ico file format
